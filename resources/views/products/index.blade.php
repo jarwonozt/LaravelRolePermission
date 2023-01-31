@@ -20,8 +20,8 @@
             <p>{{ $message }}</p>
         </div>
     @endif
-
-    <table class="table table-bordered">
+<div class="table-responsive">
+    <table class="table">
         <tr>
             <th>No</th>
             <th>Url</th>
@@ -41,7 +41,7 @@
                 <form action="{{ route('products.destroy',$product->id) }}" method="POST">
                     {{-- <a class="btn btn-info" href="{{ route('products.show',$product->id) }}">Show</a> --}}
                     @can('product-edit')
-                    <a class="btn btn-{{ $product->status == true ? 'success' : 'warning' }}" href="{{ route('products.edit',$product->id) }}">{{ $product->status == true ? 'Aktif' : 'Nonaktif' }}</a>
+                    <a class="btn btn-{{ $product->status == true ? 'success' : 'warning' }}" href="{{ route('products.edit',$product->id) }}">{{ $product->status == true ? 'Nonakfikan' : 'Aktifkan' }}</a>
                     @endcan
 
 
@@ -55,6 +55,7 @@
 	    </tr>
 	    @endforeach
     </table>
+</div>
 
     {!! $products->links() !!}
 
