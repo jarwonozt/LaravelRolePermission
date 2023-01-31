@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Website;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -26,7 +28,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest()->paginate(5);
+        $products = Website::latest()->paginate(5);
         return view('products.index',compact('products'))
             ->with('i', (request()->input('page', 1) - 1) * 5);
     }
@@ -49,15 +51,24 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        request()->validate([
-            'name' => 'required',
-            'detail' => 'required',
+        $validator = Validator::make($request->all(),[
+            'url' => 'required',
+            'status' => 'required',
+            'os' => 'required'
         ]);
 
-        Product::create($request->all());
+        if($validator->fails()){
+            return response()->json($validator->errors());
+        }
+
+        $program = Website::create([
+            'url' => $request->url,
+            'status' => $request->status,
+            'os' => $request->os
+         ]);
 
         return redirect()->route('products.index')
-                        ->with('success','Product created successfully.');
+                        ->with('success','Data created successfully.');
     }
 
     /**
@@ -66,7 +77,7 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function show(Product $product)
+    public function show(Website $product)
     {
         return view('products.show',compact('product'));
     }
@@ -77,9 +88,15 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function edit(Product $product)
+    public function edit(Website $product)
     {
-        return view('products.edit',compact('product'));
+        $program = Website::where('id', $product->id)->update([
+            'url' => $product->url,
+            'status' => $product->status == 1 ? 0 : 1,
+            'os' => $product->os
+         ]);
+
+        return back();
     }
 
     /**
@@ -89,17 +106,26 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Website $product)
     {
-         request()->validate([
-            'name' => 'required',
-            'detail' => 'required',
+        $validator = Validator::make($request->all(),[
+            'url' => 'required',
+            'status' => 'required',
+            'os' => 'required'
         ]);
 
-        $product->update($request->all());
+        if($validator->fails()){
+            return response()->json($validator->errors());
+        }
+
+        $program = Website::where('id', $product->id)->update([
+            'url' => $request->url,
+            'status' => $product->status == 1 ? 0 : 1,
+            'os' => $request->os
+         ]);
 
         return redirect()->route('products.index')
-                        ->with('success','Product updated successfully');
+                        ->with('success','Data updated successfully');
     }
 
     /**
@@ -108,7 +134,7 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy(Website $product)
     {
         $product->delete();
 
